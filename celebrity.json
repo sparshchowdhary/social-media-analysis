@@ -1,0 +1,29 @@
+{
+    "celebrities":[
+        {
+            "smp":"Twitter",
+            "celeb_id":"dua lipa",
+            "path":"./c1"
+        },
+        {
+            "smp":"Instagram",
+            "celeb_id":"marutaro",
+            "path":"./c2"
+        },
+        {
+            "smp":"Instagram",
+            "celeb_id":"virat kohli",
+            "path":"./c3"
+        },
+        {
+            "smp":"Facebook",
+            "celeb_id":"j balvin",
+            "path":"./c4"
+        },
+        {
+            "smp":"YouTube",
+            "celeb_id":"pewdiepie",
+            "path":"./c5"
+        }
+    ]
+}
