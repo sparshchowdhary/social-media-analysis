@@ -7,25 +7,35 @@ let celebs = process.argv[2];
 
 //******************Module 1************************************************
 async function twitterStats(celeb) {
-    let stats = await driver.findElements(swd.By.css('div.col.d-flex.flex-column p'));
-    let followers = stats[0];
-    let following = stats[1];
-    let tweets = stats[2];
-    let likes = stats[3];
-    let allStats = await Promise.all([followers, following, tweets, likes]);
-    let Arrobj = allStats.map(function (val) {
-        let ob = {};
-        ob.followers = val[0];
-        ob.following = val[1];
-        ob.tweets = val[2];
-        ob.likes = val[3];
-        return ob;
-    });
-    await fs.promises.writeFile(path.join(celeb.path, 'stats1.json'), JSON.stringify(Arrobj));
+    try {
+        console.log('hey');       
+        let stats = await driver.findElements(swd.By.css('div.col.d-flex.flex-column p'));
+        let allStats = await Promise.all(stats.map(function (r) {
+            let followers = r[0];
+            let following = r[1];
+            let tweets = r[2];
+            let likes = r[3];
+            let statsarr = Promise.all([followers, following, tweets, likes]);
+            return statsarr;
+        }));
+        
+        let Arrobj = allStats.map(function (val) {
+            let ob = {};
+            ob.followers = val[0];
+            ob.following = val[1];
+            ob.tweets = val[2];
+            ob.likes = val[3];
+            return ob;
+        });
+        await fs.promises.writeFile(path.join(celeb.path, 'stats1.json'), JSON.stringify(Arrobj));
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 //*******************Module 2***************************************************
 async function fbStats(celeb) {
+    console.log('hey');
     let stats = await driver.findElements(swd.By.css('div.col.d-flex.flex-column p'));
     let likes = stats[0];
     let followers = stats[1];
@@ -41,6 +51,7 @@ async function fbStats(celeb) {
 
 //***********************Module 3************************************************
 async function ytStats(celeb) {
+    console.log('hey');
     let stats = await driver.findElements(swd.By.css('div.col.d-flex.flex-column p'));
     let subscribers = stats[0];
     let views = stats[1];
@@ -58,6 +69,7 @@ async function ytStats(celeb) {
 
 //**********************Module 4**************************************************
 async function instaStats(celeb) {
+    console.log('hey');
     let stats = await driver.findElements(swd.By.css('div.col.d-flex.flex-column p'));
     let followers = stats[0];
     let uploads = stats[1];
@@ -76,42 +88,26 @@ async function instaStats(celeb) {
         return ob;
     });
     await fs.promises.writeFile(path.join(celeb.path, 'stats2.json'), JSON.stringify(Arrobj));
-    
+
 }
 
-//***********************Module 5***************************************************
-async function getStats(celeb) {
+async function analyser(celeb) {
     try {
-        let dropdown = await driver.findElement(swd.By.css('button[data-toggle=dropdown]'));
-        await dropdown.click();
-        let options = await driver.findElements(swd.By.css('a.dropdown-item svg.svg-inline--fa'));
-        let optionTexts = await Promise.all(options.map(function (o) {
-            return o.getText();
-        }));
-        let i;
-        for (i = 0; i < optionTexts.length; i++) {
-            if (optionTexts[i].trim() === celeb.smp) {
-                break;
-            }
-        }
-        await options[i].click();
-        let input = await driver.findElement(swd.By.css('input[type=text]'));
-        let cn = celeb.celeb_id;
-        let cnp = input.sendKeys(cn);
-        await Promise.all([cnp]);
-        let button = await driver.findElement(swd.By.css('button[type=submit]'));
-        await button.click();
         switch (celeb.smp) {
-            case 'Twitter':
+            case 'twitter':
+                console.log('im here');
                 twitterStats(celeb);
                 break;
-            case 'Instagram':
+            case 'instagram':
+                console.log('im here');
                 instaStats(celeb);
                 break;
-            case 'Facebook':
+            case 'facebook':
+                console.log('im here'); 
                 fbStats(celeb);
                 break;
-            case 'YouTube':
+            case 'youtube':
+                console.log('im here'); 
                 ytStats(celeb);
                 break;
             default:
@@ -123,19 +119,51 @@ async function getStats(celeb) {
     }
 }
 
+//***********************Module 5***************************************************
+async function getStats(celeb) {
+    try {
+        
+        //await driver.manage().setTimeouts({ implicit: 5000 });
+        let dropdown = await driver.findElement(swd.By.css('div.index-search.aos-init.aos-animate button[data-toggle=dropdown]'));
+        await dropdown.click();
+        let options = await driver.findElements(swd.By.css('div.dropdown-menu.show a.dropdown-item'));
+        let optionTexts = await Promise.all(options.map(function (o) {
+            return o.getAttribute('data-source');
+        }));
+        
+        let index = optionTexts.findIndex(e => e === celeb.smp);
+        console.log(optionTexts);
+        console.log(index);
+        await options[index].click();
+        await driver.manage().setTimeouts({ implicit: 2000 });
+        let input = await driver.findElement(swd.By.css('input[type=text]'));
+        let cnp = input.sendKeys(celeb.celeb_id);
+        await Promise.all([cnp]);
+        let button = await driver.findElement(swd.By.css('button[type=submit]'));
+        await button.click();
+        await driver.manage().setTimeouts({ implicit: 2000 });
+        await analyser(celeb);
+        console.log('abc');
+    }
+    catch (error) {
+        console.log(error);
+    }
+}
+
 //************************Start of Code*********************************************
 async function start() {
     try {
         await driver.manage().setTimeouts({ implicit: 1000 });
         await driver.get('https://www.speakrj.com/audit/');
+        let url = await driver.getCurrentUrl();
         let cfrp = await fs.promises.readFile(celebs, 'utf-8');
         let cel = JSON.parse(cfrp).celebrities;
-        let l=cel.length;
-        for (let i = 0; i < l; i++) {
+        for (let i = 0; i < cel.length; i++) {
             await getStats(cel[i]);
+            await driver.get(url);
+            await driver.manage().setTimeouts({ implicit: 2000 });
         }
         console.log('All Stats Fetched');
-   
     }
     catch (error) {
         console.log(error);
