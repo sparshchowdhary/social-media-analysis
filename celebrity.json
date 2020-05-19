@@ -1,24 +1,24 @@
 {
-    "celebrities":[
+    "celebrities": [
         {
-            "smp":"twitter",
-            "celeb_id":"dua lipa",
-            "path":"./c1"
+            "smp": "facebook",
+            "celeb_id": "rahul dravid",
+            "path": "./c2"
         },
         {
-            "smp":"instagram",
-            "celeb_id":"virender sehwag",
-            "path":"./c2"
+            "smp": "twitter",
+            "celeb_id": "dua lipa",
+            "path": "./c1"
         },
         {
-            "smp":"facebook",
-            "celeb_id":"rahul dravid",
-            "path":"./c3"
+            "smp": "twitter",
+            "celeb_id": "virender sehwag",
+            "path": "./c3"
         },
         {
-            "smp":"youtube",
-            "celeb_id":"pewdiepie",
-            "path":"./c4"
+            "smp": "facebook",
+            "celeb_id": "pewdiepie",
+            "path": "./c4"
         }
     ]
 }
